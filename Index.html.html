@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Banck.z Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#E2581C;
+    --orange-dark:#C24410;
+    --cream:#FBE6D9;
+    --cream-soft:#FDF1E8;
+    --ink:#231F1C;
+    --gray:#8C8178;
+    --gray-light:#D8CCC2;
+    --green:#1F9D55;
+    --green-bg:#E4F5EA;
+    --red:#D14B4B;
+    --red-bg:#FBEAEA;
+    --blue:#2D6FE0;
+    --blue-bg:#E8EFFC;
+    --white:#FFFFFF;
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-pill:999px;
+    --shadow:0 6px 18px rgba(60,30,10,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--cream-soft);
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--cream-soft);
+    display:flex;
+    flex-direction:column;
+  }
+  header.top{
+    background:var(--orange);
+    padding:36px 24px 28px;
+  }
+  .wordmark{
+    font-family:'Playfair Display',serif;
+    font-weight:800;
+    font-size:36px;
+    color:#FFF6EE;
+    line-height:1;
+  }
+  .eyebrow{
+    margin-top:6px;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:2.5px;
+    color:#FBD9C2;
+    text-transform:uppercase;
+  }
+  main.content{
+    flex:1;
+    padding:20px 18px 110px;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+    margin-bottom:18px;
+  }
+  .stat-card{
+    background:var(--white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow);
+    padding:14px 6px 12px;
+    text-align:center;
+  }
+  .stat-value{
+    font-family:'Playfair Display',serif;
+    font-weight:800;
+    font-size:21px;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .stat-value.profit{ color:var(--green); }
+  .stat-label{
+    margin-top:4px;
+    font-size:9.5px;
+    font-weight:600;
+    letter-spacing:1px;
+    color:var(--gray);
+    text-transform:uppercase;
+  }
+  .search-wrap{ margin-bottom:14px; }
+  #searchInput{
+    width:100%;
+    padding:13px 18px;
+    border-radius:var(--radius-pill);
+    border:1px solid var(--gray-light);
+    background:var(--white);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  #searchInput::placeholder{ color:#B7AAA0; }
+  #searchInput:focus{ outline:2px solid var(--orange); outline-offset:1px; }
+  .filter-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .pill{
+    border:1px solid var(--gray-light);
+    background:var(--white);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    padding:9px 16px;
+    border-radius:var(--radius-pill);
+    cursor:pointer;
+    transition:background 0.15s,color 0.15s,border-color 0.15s;
+  }
+  .pill:focus-visible{ outline:2px solid var(--orange-dark); }
+  .pill.active{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:#fff;
+  }
+  .item-list{
+    margin-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .item-card{
+    background:var(--white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow);
+    padding:14px 14px 12px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    cursor:pointer;
+  }
+  .item-main{ min-width:0; flex:1; }
+  .item-name{ font-weight:700; font-size:15.5px; color:var(--ink); }
+  .item-brand{ font-size:12.5px; color:var(--gray); margin-top:1px; }
+  .item-meta{ margin-top:7px; display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .sku-tag{
+    font-size:11px; font-weight:600; color:var(--gray);
+    background:var(--cream-soft); padding:3px 8px; border-radius:8px;
+    letter-spacing:0.3px;
+  }
+  .box-tag{
+    font-size:11px; font-weight:600; color:var(--orange-dark);
+    background:var(--cream); padding:3px 8px; border-radius:8px;
+  }
+  .item-side{ text-align:right; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .status-badge{
+    font-size:10.5px; font-weight:700; letter-spacing:0.4px;
+    padding:4px 10px; border-radius:var(--radius-pill); text-transform:uppercase;
+  }
+  .status-in_stock{ background:#F1ECE7; color:var(--gray); }
+  .status-listed{ background:var(--blue-bg); color:var(--blue); }
+  .status-sold{ background:var(--green-bg); color:var(--green); }
+  .price-line{ font-size:12.5px; color:var(--gray); }
+  .price-line strong{ color:var(--ink); font-weight:700; }
+  .profit-line{ font-size:12.5px; font-weight:700; }
+  .profit-pos{ color:var(--green); }
+  .profit-neg{ color:var(--red); }
+  .print-btn{
+    border:none; background:none; font-size:16px; cursor:pointer;
+    color:var(--gray); padding:2px 4px;
+  }
+  .empty-state{ text-align:center; padding:48px 20px 0; color:var(--gray); }
+  .empty-state p{ font-size:14.5px; margin:0; }
+  .empty-state.hidden, .item-list.hidden{ display:none; }
+  .no-match{ text-align:center; padding:30px 10px; color:var(--gray); font-size:14px; }
+  .table-wrap{
+    margin-top:16px;
+    background:var(--white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow);
+    overflow-x:auto;
+  }
+  .table-wrap.hidden{ display:none; }
+  .data-table{
+    border-collapse:collapse;
+    width:100%;
+    font-size:12.5px;
+    white-space:nowrap;
+  }
+  .data-table th{
+    text-align:left;
+    padding:10px 12px;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--gray);
+    background:var(--cream-soft);
+    position:sticky;
+    top:0;
+  }
+  .data-table td{
+    padding:10px 12px;
+    border-top:1px solid var(--cream);
+    color:var(--ink);
+  }
+  .data-table tr.table-row{ cursor:pointer; }
+  .data-table tr.table-row:active{ background:var(--cream-soft); }
+  .data-table .cell-profit-pos{ color:var(--green); font-weight:700; }
+  .data-table .cell-profit-neg{ color:var(--red); font-weight:700; }
+  .data-table .cell-status{ font-size:10.5px; font-weight:700; text-transform:uppercase; }
+
+  .add-bar{
+    position:sticky;
+    bottom:0;
+    background:linear-gradient(to top, var(--cream-soft) 60%, rgba(253,241,232,0));
+    padding:18px 18px 22px;
+    display:flex;
+    justify-content:center;
+  }
+  .add-btn{
+    width:auto;
+    min-width:210px;
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius-pill);
+    padding:16px 44px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(226,88,28,0.35);
+  }
+  .add-btn:active{ background:var(--orange-dark); }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(20,12,8,0.45);
+    display:flex; align-items:flex-end; justify-content:center;
+    z-index:50;
+  }
+  .modal-overlay.hidden{ display:none; }
+  .modal-sheet{
+    background:var(--white);
+    width:100%; max-width:480px;
+    border-radius:24px 24px 0 0;
+    padding:22px 22px 28px;
+    max-height:88vh;
+    overflow-y:auto;
+  }
+  .modal-header{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .modal-header h2{
+    font-family:'Playfair Display',serif;
+    font-size:22px; margin:0; color:var(--ink);
+  }
+  .icon-btn{
+    border:none; background:var(--cream-soft); width:34px; height:34px;
+    border-radius:50%; font-size:15px; cursor:pointer; color:var(--ink);
+  }
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:12.5px; font-weight:600; color:var(--gray);
+    margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; padding:12px 14px; border-radius:12px;
+    border:1px solid var(--gray-light); font-family:'Inter',sans-serif;
+    font-size:15px; color:var(--ink); background:var(--cream-soft);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--orange); outline-offset:1px;
+  }
+  .row-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .error-text{ color:var(--red); font-size:13px; margin:-4px 0 12px; display:none; }
+  .save-btn{
+    width:100%; background:var(--orange); color:#fff; border:none;
+    border-radius:var(--radius-pill); padding:15px 0; font-weight:700;
+    font-size:15.5px; cursor:pointer; margin-top:6px;
+  }
+  .delete-zone{ margin-top:18px; text-align:center; }
+  .delete-link{
+    border:none; background:none; color:var(--red); font-weight:600;
+    font-size:14px; cursor:pointer; padding:8px;
+  }
+  .confirm-row{ display:flex; gap:10px; justify-content:center; align-items:center; }
+  .confirm-row span{ font-size:13.5px; color:var(--ink); }
+  .confirm-yes{ background:var(--red); color:#fff; border:none; border-radius:var(--radius-pill); padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer; }
+  .confirm-no{ background:var(--cream-soft); color:var(--ink); border:none; border-radius:var(--radius-pill); padding:8px 16px; font-weight:600; font-size:13.5px; cursor:pointer; }
+
+  .print-label{ display:none; }
+  @media print{
+    body.printing *{ display:none !important; }
+    body.printing .print-label{
+      display:flex !important;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      gap:6px;
+    }
+    body.printing .print-label .pl-name{ font-family:'Inter',sans-serif; font-weight:700; font-size:18px; }
+    body.printing .print-label .pl-sku{ font-family:'Inter',sans-serif; font-weight:800; font-size:26px; letter-spacing:1px; }
+    body.printing .print-label .pl-box{ font-family:'Inter',sans-serif; font-size:14px; color:#444; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="wordmark">Banck<span>.z</span></div>
+      <div class="eyebrow">Inventory</div>
+    </header>
+
+    <main class="content">
+      <section class="stats">
+        <div class="stat-card"><div class="stat-value" id="statItems">0</div><div class="stat-label">Items</div></div>
+        <div class="stat-card"><div class="stat-value" id="statSold">0</div><div class="stat-label">Sold</div></div>
+        <div class="stat-card"><div class="stat-value" id="statInvested">€0</div><div class="stat-label">Invested</div></div>
+        <div class="stat-card"><div class="stat-value profit" id="statProfit">€0</div><div class="stat-label">Profit</div></div>
+      </section>
+
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="Search SKU, item or brand..." />
+      </div>
+
+      <div class="filter-row" id="statusFilters">
+        <button class="pill active" data-status="all">All</button>
+        <button class="pill" data-status="in_stock">In stock</button>
+        <button class="pill" data-status="listed">Listed</button>
+        <button class="pill" data-status="sold">Sold</button>
+      </div>
+      <div class="filter-row" id="boxFilters">
+        <button class="pill" data-box="A">Box A</button>
+        <button class="pill" data-box="B">Box B</button>
+        <button class="pill" data-box="C">Box C</button>
+        <button class="pill" data-box="D">Box D</button>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin:4px 0 14px;">
+        <div class="filter-row" id="viewToggle" style="margin:0;">
+          <button class="pill active" data-view="cards">Cards</button>
+          <button class="pill" data-view="table">Table</button>
+        </div>
+        <button id="exportBtn" class="delete-link" style="color:var(--blue); padding:4px 0;">Export CSV</button>
+      </div>
+
+      <div class="item-list hidden" id="itemList"></div>
+      <div class="empty-state" id="emptyState"><p>Tap "+ Add item" to log your first piece.</p></div>
+      <div class="no-match" id="noMatch" style="display:none;">No items match these filters.</div>
+
+      <div class="table-wrap hidden" id="tableView">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>SKU</th><th>Name</th><th>Brand</th><th>Box</th><th>Status</th><th>Cond.</th><th>Size</th><th>Cost</th><th>List</th><th>Sold</th><th>P/L</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <div class="add-bar">
+      <button class="add-btn" id="addBtn">+ Add item</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add item</h2>
+        <button class="icon-btn" id="closeModal">✕</button>
+      </div>
+      <form id="itemForm">
+        <div class="field">
+          <label>Item name</label>
+          <input type="text" id="fName" placeholder="e.g. Nike windbreaker" />
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Brand</label>
+            <input type="text" id="fBrand" placeholder="e.g. Nike" />
+          </div>
+          <div class="field">
+            <label>Box</label>
+            <select id="fBox">
+              <option value="A">Box A</option>
+              <option value="B">Box B</option>
+              <option value="C">Box C</option>
+              <option value="D">Box D</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>SKU</label>
+            <input type="text" id="fSku" />
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="fStatus">
+              <option value="in_stock">In stock</option>
+              <option value="listed">Listed</option>
+              <option value="sold">Sold</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Purchase price (€)</label>
+          <input type="number" step="0.01" min="0" id="fPurchase" placeholder="0.00" />
+        </div>
+        <div class="field" id="listPriceField">
+          <label>List price (€)</label>
+          <input type="number" step="0.01" min="0" id="fList" placeholder="0.00" />
+        </div>
+        <div class="field" style="margin-top:-10px;">
+          <div id="estProfitPreview" style="font-size:13px; font-weight:600; color:var(--gray); min-height:18px;"></div>
+        </div>
+        <div class="field" id="soldPriceField" style="display:none;">
+          <label>Sold price (€)</label>
+          <input type="number" step="0.01" min="0" id="fSold" placeholder="0.00" />
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Condition</label>
+            <select id="fCondition">
+              <option value="">Select...</option>
+              <option value="New with tags">New with tags</option>
+              <option value="New without tags">New without tags</option>
+              <option value="Very good">Very good</option>
+              <option value="Good">Good</option>
+              <option value="Satisfactory">Satisfactory</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Size</label>
+            <input type="text" id="fSize" placeholder="e.g. M, EU 40" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Vinted description</label>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <select id="fDescLang" style="flex:0 0 90px; padding:12px 8px; border-radius:12px; border:1px solid var(--gray-light); background:var(--cream-soft); font-family:'Inter',sans-serif; font-size:14px;">
+              <option value="Romanian">RO</option>
+              <option value="English">EN</option>
+              <option value="Dutch">NL</option>
+            </select>
+            <button type="button" id="genDescBtn" class="pill" style="flex:1; background:var(--white);">Generate description</button>
+          </div>
+          <textarea id="fDescription" rows="4" placeholder="Tap Generate, or write your own..."></textarea>
+          <button type="button" id="copyDescBtn" class="delete-link" style="color:var(--blue); margin-top:6px;">Copy text</button>
+        </div>
+        <div class="error-text" id="formError"></div>
+        <button type="submit" class="save-btn" id="saveBtnLabel">Add item</button>
+      </form>
+      <div class="delete-zone" id="deleteZone" style="display:none;">
+        <button class="delete-link" id="duplicateLink" style="color:var(--blue);">Duplicate item</button>
+        <button class="delete-link" id="deleteLink">Delete item</button>
+        <div class="confirm-row" id="confirmRow" style="display:none;">
+          <span>Delete for good?</span>
+          <button class="confirm-yes" id="confirmYes">Delete</button>
+          <button class="confirm-no" id="confirmNo">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-label" id="printLabel">
+    <div class="pl-name" id="plName"></div>
+    <div class="pl-sku" id="plSku"></div>
+    <div class="pl-box" id="plBox"></div>
+  </div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'banckz-data';
+  let appData = { nextId: 1, items: [] };
+  let statusFilter = 'all';
+  let boxFilter = null;
+  let searchText = '';
+  let editingId = null;
+  let viewMode = 'cards';
+
+  const el = (id) => document.getElementById(id);
+  const hasClaudeStorage = typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+
+  function defaultData(){ return { nextId: 1, items: [] }; }
+
+  async function loadData(){
+    try{
+      if(hasClaudeStorage){
+        const result = await window.storage.get(STORAGE_KEY);
+        if(result && result.value){
+          const parsed = JSON.parse(result.value);
+          if(parsed && Array.isArray(parsed.items)) return parsed;
+        }
+        return defaultData();
+      } else {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+          const parsed = JSON.parse(raw);
+          if(parsed && Array.isArray(parsed.items)) return parsed;
+        }
+        return defaultData();
+      }
+    }catch(e){
+      return defaultData();
+    }
+  }
+
+  async function saveData(){
+    try{
+      if(hasClaudeStorage){
+        await window.storage.set(STORAGE_KEY, JSON.stringify(appData));
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      }
+    }catch(e){
+      console.error('Could not save inventory', e);
+    }
+  }
+
+  function formatEuro(n){
+    const num = Number(n) || 0;
+    return '€' + num.toLocaleString('nl-NL', { maximumFractionDigits: 2 });
+  }
+
+  function statusLabel(s){
+    return s === 'in_stock' ? 'In stock' : s === 'listed' ? 'Listed' : 'Sold';
+  }
+
+  function computeStats(){
+    const items = appData.items;
+    const sold = items.filter(i => i.status === 'sold');
+    const invested = items.reduce((sum, i) => sum + (Number(i.purchasePrice) || 0), 0);
+    const profit = sold.reduce((sum, i) => sum + ((Number(i.soldPrice)||0) - (Number(i.purchasePrice)||0)), 0);
+    return { total: items.length, soldCount: sold.length, invested, profit };
+  }
+
+  function renderStats(){
+    const s = computeStats();
+    el('statItems').textContent = s.total;
+    el('statSold').textContent = s.soldCount;
+    el('statInvested').textContent = formatEuro(s.invested);
+    el('statProfit').textContent = formatEuro(s.profit);
+  }
+
+  function filteredItems(){
+    return appData.items
+      .filter(i => statusFilter === 'all' || i.status === statusFilter)
+      .filter(i => !boxFilter || i.box === boxFilter)
+      .filter(i => {
+        if(!searchText) return true;
+        const q = searchText.toLowerCase();
+        return (i.name||'').toLowerCase().includes(q) ||
+               (i.brand||'').toLowerCase().includes(q) ||
+               (i.sku||'').toLowerCase().includes(q);
+      })
+      .sort((a,b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+  }
+
+  function renderList(){
+    const listEl = el('itemList');
+    const emptyEl = el('emptyState');
+    const noMatchEl = el('noMatch');
+    const items = filteredItems();
+
+    if(appData.items.length === 0){
+      listEl.classList.add('hidden');
+      emptyEl.style.display = 'block';
+      noMatchEl.style.display = 'none';
+      listEl.innerHTML = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    if(items.length === 0){
+      listEl.classList.add('hidden');
+      noMatchEl.style.display = 'block';
+      listEl.innerHTML = '';
+      return;
+    }
+    noMatchEl.style.display = 'none';
+    listEl.classList.remove('hidden');
+
+    listEl.innerHTML = items.map(i => {
+      const cost = Number(i.purchasePrice) || 0;
+      const hasListPrice = i.listPrice !== null && i.listPrice !== undefined && i.listPrice !== '';
+      const listP = Number(i.listPrice) || 0;
+      let priceLine, profitLine = '';
+      if(i.status === 'sold'){
+        const diff = (Number(i.soldPrice)||0) - cost;
+        priceLine = `<div class="price-line">Cost <strong>${formatEuro(cost)}</strong> → Sold <strong>${formatEuro(i.soldPrice)}</strong></div>`;
+        profitLine = `<div class="profit-line ${diff >= 0 ? 'profit-pos' : 'profit-neg'}">${diff >= 0 ? '+' : ''}${formatEuro(diff)} profit</div>`;
+      } else if(hasListPrice){
+        const estDiff = listP - cost;
+        priceLine = `<div class="price-line">Cost <strong>${formatEuro(cost)}</strong> → List <strong>${formatEuro(listP)}</strong></div>`;
+        profitLine = `<div class="profit-line ${estDiff >= 0 ? 'profit-pos' : 'profit-neg'}">${estDiff >= 0 ? '+' : ''}${formatEuro(estDiff)} est.</div>`;
+      } else {
+        priceLine = `<div class="price-line">Cost <strong>${formatEuro(cost)}</strong></div>`;
+      }
+      return `
+        <div class="item-card" data-id="${i.id}">
+          <div class="item-main">
+            <div class="item-name">${escapeHtml(i.name)}</div>
+            <div class="item-brand">${escapeHtml(i.brand || '')}</div>
+            <div class="item-meta">
+              <span class="sku-tag">${escapeHtml(i.sku)}</span>
+              <span class="box-tag">Box ${i.box}</span>
+              ${i.size ? `<span class="sku-tag">${escapeHtml(i.size)}</span>` : ''}
+            </div>
+          </div>
+          <div class="item-side">
+            <span class="status-badge status-${i.status}" data-advance="${i.id}">${statusLabel(i.status)}</span>
+            ${priceLine}
+            ${profitLine}
+            <button class="print-btn" data-print="${i.id}" title="Print label">🖨</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  function renderTable(){
+    const tbody = el('tableBody');
+    const items = filteredItems();
+    if(items.length === 0){
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:var(--gray); padding:24px 12px;">${appData.items.length === 0 ? 'No items yet.' : 'No items match these filters.'}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(i => {
+      const cost = Number(i.purchasePrice) || 0;
+      let listCell = i.listPrice !== null && i.listPrice !== undefined && i.listPrice !== '' ? formatEuro(i.listPrice) : '—';
+      let soldCell = i.soldPrice !== null && i.soldPrice !== undefined && i.soldPrice !== '' ? formatEuro(i.soldPrice) : '—';
+      let plCell = '—';
+      if(i.status === 'sold'){
+        const diff = (Number(i.soldPrice)||0) - cost;
+        plCell = `<span class="${diff >= 0 ? 'cell-profit-pos' : 'cell-profit-neg'}">${diff >= 0 ? '+' : ''}${formatEuro(diff)}</span>`;
+      } else if(i.listPrice !== null && i.listPrice !== undefined && i.listPrice !== ''){
+        const estDiff = (Number(i.listPrice)||0) - cost;
+        plCell = `<span class="${estDiff >= 0 ? 'cell-profit-pos' : 'cell-profit-neg'}">${estDiff >= 0 ? '+' : ''}${formatEuro(estDiff)} est.</span>`;
+      }
+      return `
+        <tr class="table-row" data-id="${i.id}">
+          <td>${escapeHtml(i.sku)}</td>
+          <td>${escapeHtml(i.name)}</td>
+          <td>${escapeHtml(i.brand || '—')}</td>
+          <td>${i.box}</td>
+          <td class="cell-status status-${i.status}">${statusLabel(i.status)}</td>
+          <td>${escapeHtml(i.condition || '—')}</td>
+          <td>${escapeHtml(i.size || '—')}</td>
+          <td>${formatEuro(cost)}</td>
+          <td>${listCell}</td>
+          <td>${soldCell}</td>
+          <td>${plCell}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  function render(){
+    renderStats();
+    if(viewMode === 'table'){
+      el('itemList').classList.add('hidden');
+      el('emptyState').style.display = 'none';
+      el('noMatch').style.display = 'none';
+      el('tableView').classList.remove('hidden');
+      renderTable();
+    } else {
+      el('tableView').classList.add('hidden');
+      renderList();
+    }
+  }
+
+  el('viewToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pill');
+    if(!btn) return;
+    viewMode = btn.dataset.view;
+    [...el('viewToggle').children].forEach(p => p.classList.toggle('active', p === btn));
+    render();
+  });
+
+  el('tableBody').addEventListener('click', (e) => {
+    const row = e.target.closest('.table-row');
+    if(!row) return;
+    const item = appData.items.find(i => String(i.id) === row.dataset.id);
+    if(item) openEditModal(item);
+  });
+
+  // ---- Filters ----
+  el('statusFilters').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pill');
+    if(!btn) return;
+    statusFilter = btn.dataset.status;
+    [...el('statusFilters').children].forEach(p => p.classList.toggle('active', p === btn));
+    render();
+  });
+
+  el('boxFilters').addEventListener('click', (e) => {
+    const btn = e.target.closest('.pill');
+    if(!btn) return;
+    const val = btn.dataset.box;
+    if(boxFilter === val){
+      boxFilter = null;
+      btn.classList.remove('active');
+    } else {
+      boxFilter = val;
+      [...el('boxFilters').children].forEach(p => p.classList.toggle('active', p === btn));
+    }
+    render();
+  });
+
+  el('searchInput').addEventListener('input', (e) => {
+    searchText = e.target.value;
+    render();
+  });
+
+  // ---- Modal ----
+  function nextSku(box){
+    const num = String(appData.nextId).padStart(3,'0');
+    return `BZ-${box}${num}`;
+  }
+
+  function updatePriceFieldsVisibility(){
+    const status = el('fStatus').value;
+    el('soldPriceField').style.display = (status === 'sold') ? 'block' : 'none';
+  }
+
+  function updateEstProfitPreview(){
+    const purchase = parseFloat(el('fPurchase').value);
+    const list = parseFloat(el('fList').value);
+    const preview = el('estProfitPreview');
+    if(isNaN(purchase) || isNaN(list)){
+      preview.textContent = '';
+      return;
+    }
+    const diff = list - purchase;
+    preview.innerHTML = `Estimated profit: <span style="color:${diff>=0?'#1F9D55':'#D14B4B'}">${diff>=0?'+':''}${formatEuro(diff)}</span>`;
+  }
+
+  el('fPurchase').addEventListener('input', updateEstProfitPreview);
+  el('fList').addEventListener('input', updateEstProfitPreview);
+
+  el('fStatus').addEventListener('change', updatePriceFieldsVisibility);
+  el('fBox').addEventListener('change', () => {
+    if(editingId === null){
+      el('fSku').value = nextSku(el('fBox').value);
+    }
+  });
+
+  function openAddModal(){
+    editingId = null;
+    el('modalTitle').textContent = 'Add item';
+    el('saveBtnLabel').textContent = 'Add item';
+    el('deleteZone').style.display = 'none';
+    el('formError').style.display = 'none';
+    el('fName').value = '';
+    el('fBrand').value = '';
+    el('fBox').value = 'A';
+    el('fSku').value = nextSku('A');
+    el('fStatus').value = 'in_stock';
+    el('fPurchase').value = '';
+    el('fList').value = '';
+    el('fSold').value = '';
+    el('fCondition').value = '';
+    el('fSize').value = '';
+    el('fDescription').value = '';
+    el('fDescLang').value = 'Romanian';
+    updatePriceFieldsVisibility();
+    updateEstProfitPreview();
+    el('modalOverlay').classList.remove('hidden');
+  }
+
+  function openEditModal(item, options = {}){
+    editingId = item.id;
+    el('modalTitle').textContent = 'Edit item';
+    el('saveBtnLabel').textContent = 'Save changes';
+    el('deleteZone').style.display = 'block';
+    el('confirmRow').style.display = 'none';
+    el('deleteLink').style.display = 'inline-block';
+    el('formError').style.display = 'none';
+    el('fName').value = item.name;
+    el('fBrand').value = item.brand || '';
+    el('fBox').value = item.box;
+    el('fSku').value = item.sku;
+    el('fStatus').value = options.presetStatus || item.status;
+    el('fPurchase').value = item.purchasePrice;
+    el('fList').value = item.listPrice ?? '';
+    el('fSold').value = item.soldPrice ?? '';
+    el('fCondition').value = item.condition || '';
+    el('fSize').value = item.size || '';
+    el('fDescription').value = item.description || '';
+    el('fDescLang').value = item.descLang || 'Romanian';
+    updatePriceFieldsVisibility();
+    updateEstProfitPreview();
+    el('modalOverlay').classList.remove('hidden');
+  }
+
+  async function commitForm(){
+    const name = el('fName').value.trim();
+    const purchasePrice = parseFloat(el('fPurchase').value);
+    if(!name || isNaN(purchasePrice) || purchasePrice < 0) return false;
+
+    let status = el('fStatus').value;
+    const listPriceRaw = el('fList').value;
+    const soldPriceRaw = el('fSold').value;
+    const listPrice = (listPriceRaw === '' || isNaN(parseFloat(listPriceRaw))) ? null : parseFloat(listPriceRaw);
+    const soldPrice = (soldPriceRaw === '' || isNaN(parseFloat(soldPriceRaw))) ? null : parseFloat(soldPriceRaw);
+    if(status === 'sold' && soldPrice === null){
+      status = 'listed';
+    }
+
+    const payload = {
+      name,
+      brand: el('fBrand').value.trim(),
+      box: el('fBox').value,
+      sku: el('fSku').value.trim() || nextSku(el('fBox').value),
+      status,
+      purchasePrice,
+      listPrice,
+      soldPrice,
+      condition: el('fCondition').value,
+      size: el('fSize').value.trim(),
+      description: el('fDescription').value.trim(),
+      descLang: el('fDescLang').value
+    };
+
+    if(editingId === null){
+      payload.id = appData.nextId;
+      payload.dateAdded = new Date().toISOString();
+      payload.dateSold = status === 'sold' ? new Date().toISOString() : null;
+      appData.items.push(payload);
+      appData.nextId += 1;
+    } else {
+      const idx = appData.items.findIndex(i => i.id === editingId);
+      if(idx !== -1){
+        const existing = appData.items[idx];
+        appData.items[idx] = {
+          ...existing,
+          ...payload,
+          id: existing.id,
+          dateAdded: existing.dateAdded,
+          dateSold: status === 'sold' ? (existing.dateSold || new Date().toISOString()) : null
+        };
+      }
+    }
+    await saveData();
+    return true;
+  }
+
+  async function closeModal(){
+    await commitForm();
+    el('modalOverlay').classList.add('hidden');
+    editingId = null;
+    render();
+  }
+
+  el('addBtn').addEventListener('click', openAddModal);
+  el('closeModal').addEventListener('click', closeModal);
+  el('modalOverlay').addEventListener('click', (e) => {
+    if(e.target.id === 'modalOverlay') closeModal();
+  });
+
+  function advanceStatus(item){
+    if(item.status === 'in_stock'){
+      item.status = 'listed';
+      saveData();
+      render();
+    } else if(item.status === 'listed'){
+      openEditModal(item, { presetStatus: 'sold' });
+    } else {
+      openEditModal(item);
+    }
+  }
+
+  el('itemList').addEventListener('click', (e) => {
+    const printBtn = e.target.closest('[data-print]');
+    if(printBtn){
+      e.stopPropagation();
+      printLabel(printBtn.dataset.print);
+      return;
+    }
+    const badge = e.target.closest('[data-advance]');
+    if(badge){
+      e.stopPropagation();
+      const item = appData.items.find(i => String(i.id) === badge.dataset.advance);
+      if(item) advanceStatus(item);
+      return;
+    }
+    const card = e.target.closest('.item-card');
+    if(card){
+      const item = appData.items.find(i => String(i.id) === card.dataset.id);
+      if(item) openEditModal(item);
+    }
+  });
+
+  el('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = el('fName').value.trim();
+    const purchasePrice = parseFloat(el('fPurchase').value);
+    const status = el('fStatus').value;
+    const soldPriceRaw = el('fSold').value;
+    const errorEl = el('formError');
+
+    if(!name){
+      errorEl.textContent = 'Item name is required.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    if(isNaN(purchasePrice) || purchasePrice < 0){
+      errorEl.textContent = 'Enter a valid purchase price.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    if(status === 'sold' && (soldPriceRaw === '' || isNaN(parseFloat(soldPriceRaw)))){
+      errorEl.textContent = 'Enter a sold price for sold items.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    errorEl.style.display = 'none';
+
+    await commitForm();
+    el('modalOverlay').classList.add('hidden');
+    editingId = null;
+    render();
+  });
+
+  function duplicateItem(item){
+    editingId = null;
+    el('modalTitle').textContent = 'Add item';
+    el('saveBtnLabel').textContent = 'Add item';
+    el('deleteZone').style.display = 'none';
+    el('formError').style.display = 'none';
+    el('fName').value = item.name;
+    el('fBrand').value = item.brand || '';
+    el('fBox').value = item.box;
+    el('fSku').value = nextSku(item.box);
+    el('fStatus').value = 'in_stock';
+    el('fPurchase').value = item.purchasePrice ?? '';
+    el('fList').value = item.listPrice ?? '';
+    el('fSold').value = '';
+    el('fCondition').value = item.condition || '';
+    el('fSize').value = '';
+    el('fDescription').value = '';
+    el('fDescLang').value = item.descLang || 'Romanian';
+    updatePriceFieldsVisibility();
+    updateEstProfitPreview();
+    el('modalOverlay').classList.remove('hidden');
+  }
+
+  el('duplicateLink').addEventListener('click', () => {
+    const item = appData.items.find(i => i.id === editingId);
+    if(item) duplicateItem(item);
+  });
+
+  el('deleteLink').addEventListener('click', () => {
+    el('deleteLink').style.display = 'none';
+    el('confirmRow').style.display = 'flex';
+  });
+  el('confirmNo').addEventListener('click', () => {
+    el('confirmRow').style.display = 'none';
+    el('deleteLink').style.display = 'inline-block';
+  });
+  el('confirmYes').addEventListener('click', async () => {
+    appData.items = appData.items.filter(i => i.id !== editingId);
+    await saveData();
+    await closeModal();
+  });
+
+  // ---- Vinted description generator ----
+  const CONDITION_PHRASES = {
+    Romanian: {
+      'New with tags': ['este nou, cu eticheta originală încă pusă', 'nu a fost purtat niciodată, are eticheta originală'],
+      'New without tags': ['este nou, fără etichetă, dar nefolosit', 'e în stare de magazin, doar că fără etichetă'],
+      'Very good': ['este aproape ca nou, fără semne de uzură', 'a fost purtat foarte puțin și se vede foarte bine'],
+      'Good': ['este folosit normal, fără defecte vizibile', 'e în stare bună, fără pete sau rupturi'],
+      'Satisfactory': ['are semne de uzură, dar se poate purta în continuare fără probleme', 'a fost folosit mai mult, dar fără defecte majore'],
+      '': ['e în stare bună, fără defecte vizibile']
+    },
+    English: {
+      'New with tags': ['brand new with the original tags still on', 'never worn, tags attached'],
+      'New without tags': ['new without tags, never worn'],
+      'Very good': ['barely worn and still looks great'],
+      'Good': ['worn a few times, no visible flaws'],
+      'Satisfactory': ['shows some wear but still good to wear'],
+      '': ['in good condition, no visible flaws']
+    },
+    Dutch: {
+      'New with tags': ['nieuw met het originele label er nog aan'],
+      'New without tags': ['nieuw zonder label, nooit gedragen'],
+      'Very good': ['nauwelijks gedragen en ziet er nog top uit'],
+      'Good': ['normaal gedragen, geen zichtbare gebreken'],
+      'Satisfactory': ['heeft wat slijtage maar nog prima draagbaar'],
+      '': ['in goede staat, geen zichtbare gebreken']
+    }
+  };
+  const CLOSERS = {
+    Romanian: ['Trimit rapid și ambalat cu grijă.', 'Răspund rapid la mesaje, trimit în aceeași zi.', 'Plata și expedierea se fac sigur, direct prin Vinted.'],
+    English: ['Fast shipping, carefully packed.', 'I reply quickly and ship within a day.', 'Safe payment and shipping through Vinted.'],
+    Dutch: ['Snel verzonden en goed verpakt.', 'Ik reageer snel en verstuur binnen één dag.', 'Veilig betalen en verzenden via Vinted.']
+  };
+  const CONDITION_KEYWORD = {
+    Romanian: { 'New with tags':'nou cu eticheta', 'New without tags':'nou fara eticheta', 'Very good':'ca nou', 'Good':'stare buna', 'Satisfactory':'second hand' },
+    English: { 'New with tags':'new tags', 'New without tags':'new no tags', 'Very good':'like new', 'Good':'good condition', 'Satisfactory':'second hand' },
+    Dutch: { 'New with tags':'nieuw label', 'New without tags':'nieuw zonder label', 'Very good':'als nieuw', 'Good':'goede staat', 'Satisfactory':'tweedehands' }
+  };
+
+  function pickRandom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function buildTemplateDescription({name, brand, condition, size, lang}){
+    const phraseDict = CONDITION_PHRASES[lang] || CONDITION_PHRASES.Romanian;
+    const condPhrase = pickRandom(phraseDict[condition] || phraseDict['']);
+    const closer = pickRandom(CLOSERS[lang] || CLOSERS.Romanian);
+    const title = brand ? `${brand} ${name}` : name;
+    const condSentence = condPhrase.charAt(0).toUpperCase() + condPhrase.slice(1) + '.';
+
+    let opening;
+    if(lang === 'English'){
+      opening = `${title}${size ? `, size ${size}` : ''}. ${condSentence}`;
+    } else if(lang === 'Dutch'){
+      opening = `${title}${size ? `, maat ${size}` : ''}. ${condSentence}`;
+    } else {
+      opening = `${title}${size ? `, mărimea ${size}` : ''}. ${condSentence}`;
+    }
+
+    const kwDict = CONDITION_KEYWORD[lang] || CONDITION_KEYWORD.Romanian;
+    const condKw = kwDict[condition] || '';
+    const nameWords = name.split(/\s+/).filter(w => w.length > 1);
+    const keywords = [...new Set([brand, ...nameWords, size, condKw].filter(Boolean))].join(' ');
+    return `${opening} ${closer}\n${keywords}`.trim();
+  }
+
+  function generateDescription(){
+    const name = el('fName').value.trim();
+    const brand = el('fBrand').value.trim();
+    const condition = el('fCondition').value;
+    const size = el('fSize').value.trim();
+    const lang = el('fDescLang').value;
+
+    if(!name){
+      el('formError').textContent = 'Add an item name first.';
+      el('formError').style.display = 'block';
+      return;
+    }
+    el('formError').style.display = 'none';
+    el('fDescription').value = buildTemplateDescription({ name, brand, condition, size, lang });
+  }
+
+  el('genDescBtn').addEventListener('click', generateDescription);
+
+  el('copyDescBtn').addEventListener('click', async () => {
+    const text = el('fDescription').value;
+    if(!text) return;
+    const btn = el('copyDescBtn');
+    try{
+      await navigator.clipboard.writeText(text);
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    }catch(e){
+      el('fDescription').focus();
+      el('fDescription').select();
+    }
+  });
+
+  // ---- Print label ----
+  function printLabel(id){
+    const item = appData.items.find(i => String(i.id) === String(id));
+    if(!item) return;
+    el('plName').textContent = item.name;
+    el('plSku').textContent = item.sku;
+    el('plBox').textContent = 'Box ' + item.box;
+    document.body.classList.add('printing');
+    window.print();
+  }
+  window.addEventListener('afterprint', () => {
+    document.body.classList.remove('printing');
+  });
+
+  function exportCSV(){
+    const headers = ['SKU','Name','Brand','Box','Status','Condition','Size','PurchasePrice','ListPrice','SoldPrice','DateAdded','DateSold'];
+    const rows = appData.items.map(i => [
+      i.sku, i.name, i.brand, i.box, i.status, i.condition || '', i.size || '',
+      i.purchasePrice, i.listPrice ?? '', i.soldPrice ?? '', i.dateAdded || '', i.dateSold || ''
+    ]);
+    const escapeCell = (val) => {
+      const s = String(val ?? '');
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const csv = [headers, ...rows].map(row => row.map(escapeCell).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `banckz-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  el('exportBtn').addEventListener('click', exportCSV);
+
+  // ---- Init ----
+  (async function init(){
+    appData = await loadData();
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
